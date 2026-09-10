@@ -84,6 +84,30 @@ interface AuthContextType {
 
 const DEFAULT_USERS: User[] = [
   {
+    id: 'user-admin-ibrohim',
+    name: 'Ibrohim Akmalov',
+    email: 'ibrohimakmalov@.gmail.com',
+    phone: '+998 90 777 07 77',
+    role: 'admin',
+    avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&h=256&q=80',
+    gender: 'male',
+    password: 'New Trader_202',
+    createdAt: '2025-01-01T00:00:00Z',
+    isVerified: true,
+  },
+  {
+    id: 'user-admin-ibrohim-std',
+    name: 'Ibrohim Akmalov',
+    email: 'ibrohimakmalov@gmail.com',
+    phone: '+998 90 777 07 77',
+    role: 'admin',
+    avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&h=256&q=80',
+    gender: 'male',
+    password: 'New Trader_202',
+    createdAt: '2025-01-01T00:00:00Z',
+    isVerified: true,
+  },
+  {
     id: 'user-admin',
     name: 'Administrator',
     email: 'admin@uybozor.uz',
@@ -177,8 +201,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { success: false, message: 'Iltimos, parolingizni kiriting.' };
     }
 
+    // Normalize email comparison (handles both ibrohimakmalov@.gmail.com and ibrohimakmalov@gmail.com)
+    const normalize = (e: string) => e.trim().toLowerCase().replace('@.gmail.com', '@gmail.com');
+    const inputNormalized = normalize(trimmedEmail);
+
     // Check in registered users
-    const found = registeredUsers.find((u) => u.email.toLowerCase() === trimmedEmail);
+    const found = registeredUsers.find(
+      (u) => u.email.toLowerCase() === trimmedEmail || normalize(u.email) === inputNormalized
+    );
 
     if (!found) {
       return {
