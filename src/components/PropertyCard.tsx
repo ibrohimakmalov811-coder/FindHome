@@ -52,10 +52,13 @@ export default function PropertyCard({ property }: PropertyCardProps) {
       <div className="relative aspect-4/3 overflow-hidden bg-gray-100 dark:bg-slate-800">
         <Link href={`/properties/${property.id}`} className="block w-full h-full">
           <img
-            src={property.images[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80'}
+            src={property.images[0] || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80'}
             alt={property.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             loading="lazy"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80';
+            }}
           />
         </Link>
 

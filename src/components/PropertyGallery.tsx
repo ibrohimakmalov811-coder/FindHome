@@ -25,10 +25,13 @@ export default function PropertyGallery({ images, title }: PropertyGalleryProps)
       {/* Main Image Banner */}
       <div className="relative aspect-16/10 rounded-3xl overflow-hidden bg-gray-950 group">
         <img
-          src={images[currentIndex]}
+          src={images[currentIndex] || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80'}
           alt={`${title} - ${currentIndex + 1}`}
           className="w-full h-full object-cover cursor-pointer group-hover:scale-102 transition-transform duration-300"
           onClick={() => setIsLightboxOpen(true)}
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80';
+          }}
         />
 
         {/* Floating Zoom / Lightbox Trigger */}

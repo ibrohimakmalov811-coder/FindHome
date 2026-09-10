@@ -8,6 +8,8 @@ export interface User {
   role: UserRole;
   agencyName?: string;
   avatar?: string;
+  gender?: 'male' | 'female';
+  password?: string;
   createdAt: string;
   isVerified?: boolean;
 }

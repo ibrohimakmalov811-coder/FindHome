@@ -5,14 +5,14 @@ import { useLanguage } from '@/context/LanguageContext';
 import { Language } from '@/data/translations';
 import { Globe, ChevronDown } from 'lucide-react';
 
-interface LangOption {
+export interface LangOption {
   code: Language;
   name: string;
   flag: string;
   label: string;
 }
 
-const LANGUAGES: LangOption[] = [
+export const LANGUAGES: LangOption[] = [
   { code: 'uz', name: "O'zbekcha", flag: '🇺🇿', label: 'UZ' },
   { code: 'ru', name: 'Русский', flag: '🇷🇺', label: 'RU' },
   { code: 'en', name: 'English', flag: '🇬🇧', label: 'EN' },

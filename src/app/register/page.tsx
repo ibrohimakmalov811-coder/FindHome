@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth, MALE_AVATARS, FEMALE_AVATARS, detectGenderFromName } from '@/context/AuthContext';
 import { UserRole } from '@/types/auth';
 import { 
   Home, 
@@ -14,7 +14,8 @@ import {
   Building2, 
   CheckCircle2, 
   ArrowRight,
-  ShieldCheck 
+  Sparkles,
+  RefreshCw
 } from 'lucide-react';
 
 export default function RegisterPage() {
@@ -27,8 +28,34 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState('+998 ');
   const [agencyName, setAgencyName] = useState('');
   const [password, setPassword] = useState('');
+  const [gender, setGender] = useState<'male' | 'female'>('male');
+  const [selectedAvatar, setSelectedAvatar] = useState<string>(MALE_AVATARS[0]);
+  const [isGenderManuallyChanged, setIsGenderManuallyChanged] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Auto-detect gender when name changes unless user manually toggled it
+  useEffect(() => {
+    if (!isGenderManuallyChanged && name.trim().length >= 3) {
+      const detected = detectGenderFromName(name);
+      setGender(detected);
+      const avatars = detected === 'female' ? FEMALE_AVATARS : MALE_AVATARS;
+      setSelectedAvatar(avatars[0]);
+    }
+  }, [name, isGenderManuallyChanged]);
+
+  const handleGenderSelect = (newGender: 'male' | 'female') => {
+    setGender(newGender);
+    setIsGenderManuallyChanged(true);
+    const avatars = newGender === 'female' ? FEMALE_AVATARS : MALE_AVATARS;
+    setSelectedAvatar(avatars[0]);
+  };
+
+  const handleRandomizeAvatar = () => {
+    const list = gender === 'female' ? FEMALE_AVATARS : MALE_AVATARS;
+    const rand = list[Math.floor(Math.random() * list.length)];
+    setSelectedAvatar(rand);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +63,11 @@ export default function RegisterPage() {
 
     if (!name.trim() || !email.trim() || !phone.trim() || !password) {
       setError('Iltimos, barcha majburiy maydonlarni to\'ldiring.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Parol kamida 6 ta belgidan iborat bo\'lishi kerak.');
       return;
     }
 
@@ -49,6 +81,8 @@ export default function RegisterPage() {
         role,
         agencyName: role === 'realtor' ? agencyName : undefined,
         password,
+        gender,
+        avatar: selectedAvatar,
       });
 
       if (res.success) {
@@ -67,6 +101,8 @@ export default function RegisterPage() {
     }
   };
 
+  const avatarOptions = gender === 'female' ? FEMALE_AVATARS : MALE_AVATARS;
+
   return (
     <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-lg space-y-8 bg-white dark:bg-slate-900 p-8 sm:p-10 rounded-3xl sm:rounded-4xl border border-gray-100 dark:border-slate-800 shadow-xl">
@@ -82,7 +118,7 @@ export default function RegisterPage() {
             Ro'yxatdan o'tish
           </h2>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            O'zbekistonning eng yirik ko'chmas mulk hamjamiyatiga qo'shiling
+            O'zbekistonning eng yirik ko'chmas mulk platformasiga qo'shiling
           </p>
         </div>
 
@@ -93,7 +129,7 @@ export default function RegisterPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* STEP: Select Role (Crucial requirement!) */}
+          {/* STEP: Select Role */}
           <div>
             <label className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 block mb-2.5">
               Siz kimsiz? Rolingizni tanlang: *
@@ -114,7 +150,7 @@ export default function RegisterPage() {
                   {role === 'buyer' && <CheckCircle2 className="w-4 h-4 text-blue-600" />}
                 </div>
                 <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">
-                  Uy qidiruvchi yoki ijarachi
+                  Uy izlovchi / ijarachi
                 </p>
               </button>
 
@@ -133,7 +169,7 @@ export default function RegisterPage() {
                   {role === 'owner' && <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
                 </div>
                 <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">
-                  Uyni sotuvchi yoki ijaraga beruvchi
+                  Sotuvchi / ijara beruvchi
                 </p>
               </button>
 
@@ -152,7 +188,7 @@ export default function RegisterPage() {
                   {role === 'realtor' && <CheckCircle2 className="w-4 h-4 text-indigo-600" />}
                 </div>
                 <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">
-                  Agent yoki agentlik vakili
+                  Ko'chmas mulk agenti
                 </p>
               </button>
             </div>
@@ -160,6 +196,7 @@ export default function RegisterPage() {
 
           {/* Form Fields */}
           <div className="space-y-4">
+            {/* Full Name */}
             <div>
               <label className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 block mb-1">
                 To'liq ismingiz *
@@ -169,7 +206,7 @@ export default function RegisterPage() {
                 <input
                   type="text"
                   required
-                  placeholder="Masalan: Sardorbek Karimov"
+                  placeholder="Masalan: Ibrohim Akmalov"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-transparent text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
@@ -177,6 +214,89 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Gender Selector with Smart Recognition */}
+            <div className="bg-gray-50/70 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-gray-100 dark:border-slate-700 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Jinsi (Avatar uchun):</span>
+                </label>
+                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold">
+                  {gender === 'male' ? "O'g'il bola (Erkak)" : "Qiz bola (Ayol)"}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleGenderSelect('male')}
+                  className={`py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all ${
+                    gender === 'male'
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                      : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-slate-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <span>👨 Erkak</span>
+                  {gender === 'male' && <CheckCircle2 className="w-3.5 h-3.5" />}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleGenderSelect('female')}
+                  className={`py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all ${
+                    gender === 'female'
+                      ? 'bg-rose-500 text-white border-rose-500 shadow-xs'
+                      : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-slate-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <span>👩 Ayol</span>
+                  {gender === 'female' && <CheckCircle2 className="w-3.5 h-3.5" />}
+                </button>
+              </div>
+
+              {/* Avatar Selector Gallery */}
+              <div className="pt-2 border-t border-gray-200/60 dark:border-slate-700">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+                    O'zingizga yoqqan rasmni tanlang:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleRandomizeAvatar}
+                    className="text-[11px] font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1 hover:underline"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                    Boshqasi
+                  </button>
+                </div>
+                <div className="flex items-center gap-2.5 overflow-x-auto pb-1">
+                  {avatarOptions.slice(0, 5).map((imgUrl, idx) => {
+                    const isSelected = selectedAvatar === imgUrl;
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setSelectedAvatar(imgUrl)}
+                        className={`relative w-11 h-11 rounded-2xl overflow-hidden shrink-0 transition-all ${
+                          isSelected
+                            ? 'ring-3 ring-blue-600 scale-105 shadow-md'
+                            : 'opacity-70 hover:opacity-100 hover:scale-102'
+                        }`}
+                      >
+                        <img src={imgUrl} alt="Avatar variant" className="w-full h-full object-cover" />
+                        {isSelected && (
+                          <div className="absolute inset-0 bg-blue-600/20 flex items-center justify-center">
+                            <CheckCircle2 className="w-4 h-4 text-white drop-shadow-md" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Email & Phone */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 block mb-1">
@@ -223,7 +343,7 @@ export default function RegisterPage() {
                   <Building2 className="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5" />
                   <input
                     type="text"
-                    placeholder="Masalan: Tashkent Real Estate LLC"
+                    placeholder="Masalan: Tashkent Premier Realty LLC"
                     value={agencyName}
                     onChange={(e) => setAgencyName(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-transparent text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
@@ -232,6 +352,7 @@ export default function RegisterPage() {
               </div>
             )}
 
+            {/* Password */}
             <div>
               <label className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 block mb-1">
                 Parol yarating *

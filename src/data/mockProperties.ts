@@ -358,7 +358,7 @@ export const mockProperties: Property[] = [
     isFurnished: true,
     amenities: ['Wi-Fi', 'Konditsioner', 'Mebel', 'Lift', 'Avtoturargoh', 'Qo\'riqlash xizmati'],
     images: [
-      'https://images.unsplash.com/photo-1502005229762-ee152d9a5e3a?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80',
     ],
     isFeatured: true,
@@ -399,8 +399,8 @@ export const mockProperties: Property[] = [
     isFurnished: true,
     amenities: ['Wi-Fi', 'Konditsioner', 'Bog\'', 'Avtoturargoh'],
     images: [
-      'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80',
     ],
     isFeatured: true,
     isVerified: true,
